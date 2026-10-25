@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rioplatense 90 días</title>
+<style>html,body{margin:0}</style>
+</head>
+<body>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
+<style>
+/* Layout: maroon band header, then a two-column workspace — today's checklist on the left, the 13-week grid and the Loop 3 dashboard on the right; stacks on phones. */
+:root{
+  --bg:#FBFAF9; --surface:#FFFFFF; --card:#F2F0EF; --card2:#E9EEF4;
+  --ink:#221F1F; --muted:#6E6A67; --line:#E2DDD9;
+  --band:#4E1310; --band-ink:#FFFFFF; --band-soft:#D5B4B1;
+  --gold:#B08423; --on-gold:#FFFFFF;
+  --s1:#0F6B5C; --s2:#1F3A5F; --s3:#8C1D18; --s4:#A05C10;
+  --ok:#2E7D4F; --warn:#9A6A12; --bad:#B3261E;
+  --done:#0F6B5C; --part:#9CC3B9; --miss:#E9D3CF; --minimal:#D9B866;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141110; --surface:#1C1817; --card:#24201E; --card2:#1D2229;
+  --ink:#EDE8E5; --muted:#A49C97; --line:#352E2B;
+  --band:#3A0F0C; --band-ink:#FFFFFF; --band-soft:#D5B4B1;
+  --gold:#E0B45C; --on-gold:#1A1208;
+  --s1:#56B7A3; --s2:#93B3DC; --s3:#E5867A; --s4:#E3A45E;
+  --ok:#5BC08A; --warn:#E3B04B; --bad:#F07167;
+  --done:#3F9E89; --part:#2D5A50; --miss:#4A2E2A; --minimal:#8F7330; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141110; --surface:#1C1817; --card:#24201E; --card2:#1D2229;
+  --ink:#EDE8E5; --muted:#A49C97; --line:#352E2B;
+  --band:#3A0F0C; --band-ink:#FFFFFF; --band-soft:#D5B4B1;
+  --gold:#E0B45C; --on-gold:#1A1208;
+  --s1:#56B7A3; --s2:#93B3DC; --s3:#E5867A; --s4:#E3A45E;
+  --ok:#5BC08A; --warn:#E3B04B; --bad:#F07167;
+  --done:#3F9E89; --part:#2D5A50; --miss:#4A2E2A; --minimal:#8F7330; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.55}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;margin:0 auto}
+.band{background:var(--band);color:var(--band-ink)}
+.band .wrap{padding-block:26px 22px}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--gold)}
+.band .eyebrow{color:#E0B45C}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,5vw,40px);line-height:1.1;margin:6px 0 6px;text-wrap:balance}
+.band p{margin:0;color:var(--band-soft);max-width:64ch}
+.phases{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.phase{font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);color:var(--band-soft)}
+.phase.on{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.5)}
+main .wrap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;padding-block:22px 48px}
+@media (max-width:860px){main .wrap{grid-template-columns:minmax(0,1fr)}}
+section{min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel + .panel{margin-top:16px}
+h2{font-family:var(--serif);font-weight:600;font-size:21px;margin:2px 0 4px;text-wrap:balance}
+.sub{color:var(--muted);font-size:13px}
+.dayhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px}
+.nav{display:flex;gap:6px}
+button{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:6px 11px;cursor:pointer}
+button:hover{border-color:var(--gold)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.seg{margin-top:12px;background:var(--card2);border-radius:10px;padding:10px 12px;font-size:13px}
+.seg b{font-weight:600}
+.banner{margin-top:12px;border-radius:10px;padding:10px 12px;font-size:13px;border:1px solid}
+.banner.bad{border-color:var(--bad);color:var(--bad);background:transparent}
+.banner.min{border-color:var(--gold);color:var(--ink);background:transparent}
+.banner.info{border-color:var(--line);color:var(--muted)}
+ul.tasks{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.task{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:start;padding:11px 12px;border-radius:11px;background:var(--card)}
+.task.opt{background:transparent;border:1px dashed var(--line)}
+.task input[type=checkbox]{appearance:none;width:22px;height:22px;margin:2px 0 0;border:2px solid var(--muted);border-radius:6px;cursor:pointer;display:grid;place-content:center;background:var(--surface)}
+.task input[type=checkbox]:checked{background:var(--gold);border-color:var(--gold)}
+.task input[type=checkbox]:checked::after{content:"";width:6px;height:11px;border:solid var(--on-gold);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.task input[type=checkbox]:disabled{cursor:default;opacity:.5}
+.task.checked .tt{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+.tt{font-weight:600;font-size:14.5px}
+.td{color:var(--muted);font-size:13px;margin-top:2px}
+.meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;white-space:nowrap}
+.mins{font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--muted)}
+.chip{font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid currentColor}
+.c1{color:var(--s1)}.c2{color:var(--s2)}.c3{color:var(--s3)}.c4{color:var(--s4)}.c0{color:var(--muted)}
+.tag{font-size:10.5px;letter-spacing:.06em;font-weight:600;color:var(--gold);margin-right:6px}
+.totals{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;font-size:13px;color:var(--muted)}
+.inputs{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+.field input{font:inherit;width:110px;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-variant-numeric:tabular-nums}
+textarea{font:inherit;width:100%;min-height:64px;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);resize:vertical}
+.minbtn{margin-top:12px}
+.minbtn.on{background:var(--gold);color:var(--on-gold);border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:30px repeat(7,minmax(0,1fr));gap:4px;margin-top:12px}
+.grid .wk{font-size:11px;color:var(--muted);display:flex;align-items:center;font-variant-numeric:tabular-nums}
+.cell{aspect-ratio:1;max-width:100%;border-radius:5px;border:1px solid var(--line);background:transparent;padding:0;cursor:pointer}
+.cell.done{background:var(--done);border-color:var(--done)}
+.cell.part{background:var(--part);border-color:var(--part)}
+.cell.minimal{background:var(--minimal);border-color:var(--minimal)}
+.cell.miss{background:var(--miss);border-color:var(--miss)}
+.cell.sel{outline:2px solid var(--ink);outline-offset:1px}
+.cell.today{box-shadow:inset 0 0 0 2px var(--gold)}
+.cell.p2{}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.dash{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.ind{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 11px;border-radius:10px;background:var(--card)}
+.ind .dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+.ind .dot.ok{background:var(--ok)}.ind .dot.warn{background:var(--warn)}.ind .dot.bad{background:var(--bad)}
+.ind .nm{font-weight:600;font-size:13.5px}
+.ind .vl{font-size:12.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.ind .hint{grid-column:2 / 4;font-size:12px;color:var(--muted);margin-top:-2px}
+svg.spark{display:block;width:100%;height:46px;margin-top:6px}
+.rules{margin:10px 0 0;padding-left:18px;font-size:13px}
+.rules li{margin:5px 0}
+.settings{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-top:10px}
+.settings input[type=date]{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.status{font-size:12px;color:var(--muted);margin-top:10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="band pad">
+  <div class="wrap">
+    <div class="eyebrow">Plan de 90 días · 阿根廷西語</div>
+    <h1>Rioplatense 90 días</h1>
+    <p>每天 60–85 分鐘，三個迴圈：每天建島、每週對話、每兩週檢查。勾掉今天的項目就好，其餘交給這一頁記。</p>
+    <div class="phases" id="phases">
+      <span class="phase" data-p="1">第 1–4 週 · 建島起步</span>
+      <span class="phase" data-p="2">第 5–8 週 · 加入對話</span>
+      <span class="phase" data-p="3">第 9–13 週 · 用語言做事</span>
+    </div>
+  </div>
+</header>
+
+<main class="pad">
+  <div class="wrap">
+    <section>
+      <div class="panel" id="today">
+        <div class="dayhead">
+          <div>
+            <div class="eyebrow" id="dayEyebrow">—</div>
+            <h2 id="dayTitle">—</h2>
+            <div class="sub" id="daySub">—</div>
+          </div>
+          <div class="nav">
+            <button id="prevBtn" type="button" aria-label="前一天">←</button>
+            <button id="todayBtn" type="button">今天</button>
+            <button id="nextBtn" type="button" aria-label="後一天">→</button>
+          </div>
+        </div>
+        <div class="seg" id="segInfo"></div>
+        <div id="banners"></div>
+        <ul class="tasks" id="tasks"></ul>
+        <div class="totals"><span id="totalMins"></span><span id="doneCount"></span></div>
+        <div class="inputs" id="inputs"></div>
+        <button class="minbtn" id="minBtn" type="button">最低可行的一天（5 分鐘）</button>
+        <div class="field" style="margin-top:14px">
+          <label for="note">今天一句筆記</label>
+          <textarea id="note" placeholder="卡在哪裡、聽到什麼好用的說法……"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel">
+        <div class="eyebrow">13 週</div>
+        <h2>進度</h2>
+        <div class="sub" id="gridSub">點任何一天可以回去補記。</div>
+        <div class="grid" id="grid"></div>
+        <div class="legend">
+          <span><i style="background:var(--done);border-color:var(--done)"></i>完成</span>
+          <span><i style="background:var(--part);border-color:var(--part)"></i>部分</span>
+          <span><i style="background:var(--minimal);border-color:var(--minimal)"></i>最低版本</span>
+          <span><i style="background:var(--miss);border-color:var(--miss)"></i>漏掉</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="eyebrow">Loop 3 · 儀表板</div>
+        <h2>只看數字，不看新影片</h2>
+        <div class="dash" id="dash"></div>
+      </div>
+
+      <div class="panel">
+        <div class="eyebrow">守則</div>
+        <h2>讓系統一直轉</h2>
+        <ol class="rules">
+          <li><b>跑滿 8 週再評估。</b>中間只根據儀表板調整，不換方法。</li>
+          <li><b>不連續漏兩天。</b>忙的時候按「最低可行的一天」。</li>
+          <li><b>一種語言做主力。</b>法語、葡語每週各 10 分鐘聽力維持。</li>
+          <li><b>綁在真實專案上。</b>第 12 週錄一集西語短節目。</li>
+        </ol>
+        <div class="settings">
+          <div class="field">
+            <label for="startDate">開始日期（第 1 週第 1 天）</label>
+            <input type="date" id="startDate">
+          </div>
+          <button type="button" id="startSave">更新開始日</button>
+        </div>
+        <div class="status" id="status">載入中…</div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function(){
+"use strict";
+var PLAN_DAYS = 91;
+var $ = function(id){ return document.getElementById(id); };
+function pad(n){ return (n<10?"0":"")+n; }
+function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function parseYmd(s){ var p=s.split("-").map(Number); return new Date(p[0],p[1]-1,p[2]); }
+function addDays(s,n){ var d=parseYmd(s); d.setDate(d.getDate()+n); return ymd(d); }
+function diffDays(a,b){ var x=parseYmd(a), y=parseYmd(b);
+  return Math.round((Date.UTC(y.getFullYear(),y.getMonth(),y.getDate())-Date.UTC(x.getFullYear(),x.getMonth(),x.getDate()))/864e5); }
+var WD = ["週日","週一","週二","週三","週四","週五","週六"];
+function todayKey(){ return ymd(new Date()); }
+function defaultStart(){ return ymd(new Date()); }
+
+/* ---------- the plan ---------- */
+function phaseOf(w){ return w<=4?1:(w<=8?2:3); }
+var SEG = {1:"60–90 秒、一個人講經歷的段落",2:"90–120 秒、表達意見或論述的段落",3:"約 2 分鐘的訪談或對話段落（兩邊都背）"};
+var PROJ = {9:"選題目和一位說西語的來賓，足球文化最順手。",10:"用框架 39–40 寫好 8 個問題，加上開場和收尾。",
+  11:"找人試錄 10 分鐘，聽寫自己最卡的那一段。",12:"正式錄一集 15 分鐘的西語短節目或訪談。",
+  13:"剪輯後發布，或至少傳給來賓聽，寫一句心得。"};
+var CAPSULE_WEEKS = {1:1,5:1,9:1,13:1};
+
+function tasksFor(idx){
+  var w = Math.floor(idx/7)+1, k = idx%7, ph = phaseOf(w), seg = SEG[ph], T=[];
+  T.push({id:"listen",t:"大量聽力",d:"阿根廷真人 podcast，固定同一位講者連聽（窄聽）。不背、不查，通勤時做也行。",
+    m:(k===5&&ph>1)?15:(k===5?20:25),s:"1",tag:"①"});
+  if(k===0) T.push({id:"loop",t:"新段落",tag:"Loop 1",s:"3",m:30,
+    d:"挑一段 "+seg+"。聽到懂 → 做逐字稿 → 西 → 中快速翻一遍 → 跟讀 3 遍 → 先背前半。"});
+  if(k===1) T.push({id:"loop",t:"中 → 西重建 ★",tag:"Loop 1",s:"2",m:20,
+    d:"先複習前半、背後半。接著只看中文，把西語說回來，跟原文逐句對照、標出落差，把落差數填在下方。"});
+  if(k===2) T.push({id:"loop",t:"鞏固＋錯誤分類",tag:"Loop 1",s:"3",m:20,
+    d: w>=3 ? "整段再背一次。把昨天的落差分成：空白、文法、說得通但不道地、漏掉的小字。錯誤清單前兩名，各造 5 句說出來。"
+            : "整段再背一次。把昨天的落差分成：空白、文法、說得通但不道地、漏掉的小字。"});
+  if(k===3) T.push({id:"loop",t:"改成自己的",tag:"Loop 1",s:"2",m:20,
+    d:"用同樣的結構，換成你自己的人、事、地點寫一版。例如換成你在布宜諾斯艾利斯看球的那一天。"});
+  if(k===6) T.push({id:"loop",t:"不看稿＋做卡",tag:"Loop 1",s:"4",m:25,
+    d:"原段落不看稿講三輪：4 → 3 → 2 分鐘。最後把整段拆成 Anki 卡，正面中文、背面西語。"});
+  if(k===0){
+    if(CAPSULE_WEEKS[w]) T.push({id:"cap",t:"時間膠囊",tag:"",s:"2",m:5,
+      d: w===13 ? "同一個題目再錄一次：「介紹 Diverax 和你的工作」。然後跟第 1 週那段放在一起聽。"
+                : "錄 2 分鐘不準備的口說：「介紹 Diverax 和你的工作」。存起來先別聽，第 13 週再比較。"});
+    else T.push({id:"flu",t:"上週段落 4 / 3 / 2",tag:"",s:"4",m:8,d:"不看稿把上週那一段講三輪，確認它還在。"});
+  }
+  if(k===1) T.push({id:"flu",t:"跟讀新段落",tag:"",s:"4",m:10,d:"跟著原音檔跟讀，直到跟得上語速和語調。"});
+  if(k===2) T.push({id:"flu",t:"框架 4 / 3 / 2",tag:"",s:"4",m:10,d:"從 40 個句型框架挑一個，講一件你自己的事：4 → 3 → 2 分鐘。"});
+  if(k===3) T.push({id:"flu",t:"唸自己的版本",tag:"",s:"4",m:10,d:"把剛寫好的版本大聲唸 3 遍，唸到順為止。"});
+  if(k===4){
+    T.push({id:"flu",t:"自己的版本 4 / 3 / 2",tag:"",s:"4",m:15,d:"不看稿講三輪：4 → 3 → 2 分鐘，第三輪錄音存檔。"});
+    if(ph<3) T.push({id:"read",t:"西語閱讀",tag:"",s:"1",m:15,d:"讀一篇你有興趣的阿根廷運動或文化文章，不查每個字，目的是擴充詞彙廣度。"});
+    else T.push({id:"proj",t:"專案 · 西語短節目",tag:"",s:"2",m:15,d:PROJ[w]});
+  }
+  if(k===5){
+    if(ph===1) T.push({id:"out",t:"自由口說＋聽寫自己",tag:"Loop 2 預備",s:"2",m:25,
+      d:"不準備，錄 2 分鐘講這週發生的一件事。聽寫其中 1 分鐘，數一數用上幾個背過的塊，填在下方。"});
+    else T.push({id:"l2",t:"真實對話",tag:"Loop 2",s:"2",m:45,
+      d:"和家教或語伴對話 20–30 分鐘，全程錄音。聽寫自己講的 3–5 分鐘，只挑最常出現的三個錯，放進下週的建島材料。用上幾個背過的塊，填在下方。"});
+  }
+  T.push({id:"anki",t:"Anki 複習（中 → 西）",tag:"",s:"3",m:10,
+    d: (w===1&&k===0) ? "先把 rioplatense-b1b2.tsv 的 40 個框架匯入 Anki，正面中文、背面西語。"
+                      : "只練產出方向：看中文，說出西語。到期的卡做完就停。"});
+  if(k===6 && w%2===0 && w<13) T.push({id:"check",t:"兩週檢查",tag:"Loop 3",s:"0",m:10,
+    d:"看儀表板，哪個燈紅就調整材料、難度或節奏。只根據數字，不換方法。"});
+  if(k===6 && w===13) T.push({id:"check",t:"三個月回顧",tag:"Loop 3",s:"0",m:20,
+    d:"把第 1 週和第 13 週的時間膠囊放在一起聽，看落差數的走勢，決定下一季：西語進入第二段，或換主力語言。"});
+  T.push({id:"log",t:"記錄",tag:"",s:"0",m:(k===1||k===5)?3:2,
+    d: k===1 ? "填這一段的落差數。" : (k===5 ? "填今天用上的塊數。" : "確認今天的項目都勾了，想寫的寫一句筆記。")});
+  if(k===1) T.push({id:"maint",t:"維持：法語聽力",tag:"選做",s:"1",m:10,opt:true,d:"法語 podcast 10 分鐘，只聽不學。"});
+  if(k===3) T.push({id:"maint",t:"維持：葡語聽力",tag:"選做",s:"1",m:10,opt:true,d:"巴西葡語 podcast 10 分鐘，只聽不學。"});
+  return T;
+}
+
+/* ---------- state ---------- */
+var LS_KEY = "rioplatense90";
+var state = {start: defaultStart(), days:{}};
+var sel = null;
+var db = null, docRef = null, unsub = null, syncing = false;
+var writeTimer = null, writing = Promise.resolve(), lastWritten = "";
+
+function lsRead(){ try{ var v=localStorage.getItem(LS_KEY); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function lsWrite(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+function normalize(s){
+  var out={start:(s&&typeof s.start==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(s.start))?s.start:defaultStart(), days:{}};
+  if(s&&s.days&&typeof s.days==="object"){ for(var k in s.days){ if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&s.days[k]&&typeof s.days[k]==="object"){
+    var d=s.days[k]; out.days[k]={d:Array.isArray(d.d)?d.d.filter(function(x){return typeof x==="string";}).slice(0,20):[],
+      gaps:(typeof d.gaps==="number")?d.gaps:null, chunks:(typeof d.chunks==="number")?d.chunks:null,
+      min:!!d.min, note:(typeof d.note==="string")?d.note.slice(0,600):""}; } } }
+  return out;
+}
+function dayRec(key,create){ var r=state.days[key]; if(!r&&create){ r=state.days[key]={d:[],gaps:null,chunks:null,min:false,note:""}; } return r; }
+
+function scheduleSave(){
+  lsWrite();
+  if(!docRef) return;
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(function(){
+    var body = JSON.parse(JSON.stringify(state)); var txt = JSON.stringify(body);
+    if(txt===lastWritten) return;
+    writing = writing.then(function(){
+      return docRef.set(body).then(function(){ lastWritten = txt; setStatus(true); })
+        .catch(function(e){ setStatus(false, e && e.code); });
+    });
+  }, 700);
+}
+function setStatus(ok, code){
+  var el=$("status");
+  if(!db){ el.textContent="進度只存在這個瀏覽器。登入 claude.ai 打開這頁，就會存到你的帳號、換裝置也看得到。"; return; }
+  if(ok){ el.textContent="進度已存到你的帳號，只有你看得到；換裝置打開也會同步。"; return; }
+  el.textContent = code==="quota_exceeded" ? "儲存空間已滿，這次的變更只存在這個瀏覽器。" :
+                   "這次沒存到帳號（"+(code||"連線問題")+"），先存在這個瀏覽器，下次變更會再試。";
+}
+
+/* ---------- derived ---------- */
+function idxOf(key){ return diffDays(state.start, key); }
+function inPlan(i){ return i>=0 && i<PLAN_DAYS; }
+function practiced(key){ var r=state.days[key]; return !!(r && (r.min || r.d.length>0)); }
+function dayStatus(key){
+  var i=idxOf(key); if(!inPlan(i)) return "out";
+  var r=state.days[key], t=todayKey();
+  if(r && r.min) return "minimal";
+  var req=tasksFor(i).filter(function(x){return !x.opt;}).map(function(x){return x.id;});
+  var done=r?r.d.filter(function(x){return req.indexOf(x)>=0;}).length:0;
+  if(req.length && done===req.length) return "done";
+  if(done>0) return "part";
+  if(diffDays(key,t)>0) return "miss";
+  return "future";
+}
+
+/* ---------- render ---------- */
+function render(){
+  var t=todayKey(); if(!sel) sel = clampSel(t);
+  var i=idxOf(sel), w=Math.floor(i/7)+1, k=i%7;
+  var rec=dayRec(sel,false)||{d:[],gaps:null,chunks:null,min:false,note:""};
+  var isFuture = diffDays(sel,t) < 0;
+  document.querySelectorAll(".phase").forEach(function(p){ p.classList.toggle("on", inPlan(i) && +p.dataset.p===phaseOf(w)); });
+
+  var d=parseYmd(sel);
+  if(!inPlan(i)){
+    $("dayEyebrow").textContent = i<0 ? "還沒開始" : "計畫已結束";
+    $("dayTitle").textContent = (d.getMonth()+1)+"/"+d.getDate()+" "+WD[d.getDay()];
+    $("daySub").textContent = i<0 ? ("計畫從 "+fmt(state.start)+" 開始，下面是第 1 天的內容預覽。") : "九十天跑完了。可以在下方改開始日，開新的一季。";
+  } else {
+    $("dayEyebrow").textContent = "第 "+w+" 週 · 第 "+(k+1)+" 天 · 第 "+(i+1)+" / 91 天";
+    $("dayTitle").textContent = (d.getMonth()+1)+"/"+d.getDate()+" "+WD[d.getDay()] + (sel===t?"（今天）":"");
+    $("daySub").textContent = ["","建島起步","加入對話","用語言做事"][phaseOf(w)] + " · " + ["新段落日","重建日","鞏固日","改寫日","流利日",(phaseOf(w)>1?"對話日":"口說日"),"收尾日"][k];
+  }
+  var pi = inPlan(i)?i:(i<0?0:PLAN_DAYS-1);
+  var pw = Math.floor(pi/7)+1;
+  $("segInfo").innerHTML = ""; var b=document.createElement("b"); b.textContent="這週的段落：";
+  $("segInfo").appendChild(b); $("segInfo").appendChild(document.createTextNode(SEG[phaseOf(pw)] + "。一段材料走完一週：第 1 天聽懂、第 2 天重建、第 4 天改寫、第 7 天不看稿。"));
+
+  var bn=$("banners"); bn.innerHTML="";
+  if(inPlan(i) && sel===t && i>=2 && !practiced(addDays(t,-1)) && !practiced(addDays(t,-2)) && !practiced(t)){
+    addBanner(bn,"bad","已經連續漏了兩天。今天不用做滿，按「最低可行的一天」就算數，先把線接回來。");
+  }
+  if(rec.min) addBanner(bn,"min","今天是最低可行版本：看中文，把一段背過的西語說出來，5 分鐘。這一天算有練，下面的項目做得到就勾。");
+  if(idxOf(t)<0){
+    var sb=document.createElement("div"); sb.className="banner min";
+    sb.appendChild(document.createTextNode("計畫設定從 "+fmt(state.start)+" 開始，還沒到第 1 天，所以現在不能勾。 "));
+    var go=document.createElement("button"); go.type="button"; go.textContent="改成從今天開始";
+    go.addEventListener("click", function(){ state.start=t; sel=t; scheduleSave(); render(); });
+    sb.appendChild(go); bn.appendChild(sb);
+  } else if(isFuture && inPlan(i)) addBanner(bn,"info","這是之後的日子，先看內容就好；到了當天才能勾。");
+
+  var list=$("tasks"); list.innerHTML="";
+  var tasks=tasksFor(pi), total=0, totalOpt=0, doneReq=0, req=0;
+  tasks.forEach(function(x){
+    if(x.opt) totalOpt+=x.m; else { total+=x.m; req++; if(rec.d.indexOf(x.id)>=0) doneReq++; }
+    var li=document.createElement("li"); li.className="task"+(x.opt?" opt":"")+(rec.d.indexOf(x.id)>=0?" checked":"");
+    var cb=document.createElement("input"); cb.type="checkbox"; cb.id="t_"+x.id; cb.checked=rec.d.indexOf(x.id)>=0;
+    cb.disabled = isFuture || !inPlan(i);
+    cb.setAttribute("aria-label", x.t);
+    cb.addEventListener("change", function(){ toggle(sel,x.id,cb.checked); });
+    var body=document.createElement("div");
+    var tt=document.createElement("label"); tt.className="tt"; tt.htmlFor=cb.id;
+    if(x.tag){ var tg=document.createElement("span"); tg.className="tag"; tg.textContent=x.tag; tt.appendChild(tg); }
+    tt.appendChild(document.createTextNode(x.t));
+    var td=document.createElement("div"); td.className="td"; td.textContent=x.d;
+    body.appendChild(tt); body.appendChild(td);
+    var meta=document.createElement("div"); meta.className="meta";
+    var mn=document.createElement("span"); mn.className="mins"; mn.textContent=x.m+" 分"; meta.appendChild(mn);
+    if(x.s!=="0"){ var ch=document.createElement("span"); ch.className="chip c"+x.s; ch.textContent=["","① 輸入","② 輸出","③ 形式","④ 流利"][+x.s]; meta.appendChild(ch); }
+    li.appendChild(cb); li.appendChild(body); li.appendChild(meta); list.appendChild(li);
+  });
+  $("totalMins").textContent = "今天約 "+total+" 分鐘" + (totalOpt?("（選做再加 "+totalOpt+" 分）"):"");
+  $("doneCount").textContent = inPlan(i) ? ("完成 "+doneReq+" / "+req) : "";
+
+  var inp=$("inputs"); inp.innerHTML="";
+  if(inPlan(i) && k===1) inp.appendChild(numField("gaps","這段的落差數",rec.gaps,isFuture,"0"));
+  if(inPlan(i) && k===5) inp.appendChild(numField("chunks","用上背過的塊",rec.chunks,isFuture,"0"));
+
+  var mb=$("minBtn"); mb.disabled = isFuture || !inPlan(i);
+  mb.classList.toggle("on", !!rec.min); mb.setAttribute("aria-pressed", rec.min?"true":"false");
+  mb.textContent = rec.min ? "✓ 今天做了最低可行版本（再按一次取消）" : "最低可行的一天（5 分鐘）";
+
+  var note=$("note"); if(document.activeElement!==note){ note.value = rec.note||""; }
+  note.disabled = isFuture || !inPlan(i);
+
+  $("prevBtn").disabled = idxOf(sel) <= 0;
+  $("nextBtn").disabled = idxOf(sel) >= PLAN_DAYS-1;
+  $("startDate").value = state.start;
+  renderGrid(); renderDash();
+}
+function fmt(s){ var d=parseYmd(s); return (d.getMonth()+1)+"/"+d.getDate()+"（"+WD[d.getDay()]+"）"; }
+function addBanner(parent,cls,txt){ var el=document.createElement("div"); el.className="banner "+cls; el.textContent=txt; parent.appendChild(el); }
+function numField(key,label,val,disabled,ph){
+  var f=document.createElement("div"); f.className="field";
+  var lb=document.createElement("label"); lb.htmlFor="n_"+key; lb.textContent=label;
+  var ip=document.createElement("input"); ip.type="number"; ip.min="0"; ip.max="200"; ip.step="1"; ip.id="n_"+key; ip.placeholder=ph;
+  ip.value = (val===null||val===undefined)?"":String(val); ip.disabled=disabled;
+  ip.addEventListener("change", function(){
+    var v = ip.value===""?null:Math.max(0,Math.min(200,Math.round(Number(ip.value))));
+    if(v!==null && isNaN(v)) v=null;
+    var r=dayRec(sel,true); r[key]=v; scheduleSave(); renderDash(); renderGrid();
+  });
+  f.appendChild(lb); f.appendChild(ip); return f;
+}
+function toggle(key,id,on){
+  var r=dayRec(key,true); var p=r.d.indexOf(id);
+  if(on && p<0) r.d.push(id); if(!on && p>=0) r.d.splice(p,1);
+  scheduleSave(); render();
+}
+function clampSel(key){ var i=idxOf(key); if(i<0) return state.start; if(i>=PLAN_DAYS) return addDays(state.start,PLAN_DAYS-1); return key; }
+
+function renderGrid(){
+  var g=$("grid"); g.innerHTML=""; var t=todayKey();
+  for(var w=0; w<13; w++){
+    var lab=document.createElement("div"); lab.className="wk"; lab.textContent="W"+(w+1); g.appendChild(lab);
+    for(var k=0;k<7;k++){
+      var i=w*7+k, key=addDays(state.start,i), st=dayStatus(key);
+      var c=document.createElement("button"); c.type="button"; c.className="cell"+(st==="done"?" done":st==="part"?" part":st==="minimal"?" minimal":st==="miss"?" miss":"");
+      if(key===t) c.classList.add("today"); if(key===sel) c.classList.add("sel");
+      var d=parseYmd(key);
+      c.setAttribute("aria-label","第 "+(w+1)+" 週第 "+(k+1)+" 天，"+(d.getMonth()+1)+"/"+d.getDate()+"，"+({done:"完成",part:"部分",minimal:"最低版本",miss:"漏掉",future:"未到"}[st]||""));
+      c.title=(d.getMonth()+1)+"/"+d.getDate()+" "+WD[d.getDay()];
+      (function(kk){ c.addEventListener("click", function(){ sel=kk; render(); $("today").scrollIntoView({behavior:"smooth",block:"start"}); }); })(key);
+      g.appendChild(c);
+    }
+  }
+  var t0=idxOf(t);
+  $("gridSub").textContent = t0<0 ? ("從 "+fmt(state.start)+" 開始。點任何一天可以預覽。") :
+    (t0>=PLAN_DAYS ? "九十天跑完了。" : "今天是第 "+(t0+1)+" / 91 天。點任何一天可以回去補記。");
+}
+
+function renderDash(){
+  var el=$("dash"); el.innerHTML=""; var t=todayKey(); var ti=idxOf(t);
+  var upto = Math.min(Math.max(ti,-1), PLAN_DAYS-1);
+  // 1 gaps (day k=1 of each week)
+  var gaps=[]; for(var i=1;i<=upto;i+=7){ var r=state.days[addDays(state.start,i)]; if(r&&typeof r.gaps==="number") gaps.push(r.gaps); }
+  var gs="none", gh="每週第 2 天重建後填一次。至少兩筆才看得出方向。", gv=gaps.length?("最近 "+gaps[gaps.length-1]):"還沒有";
+  if(gaps.length>=3){ var a=gaps[gaps.length-3],b=gaps[gaps.length-2],c=gaps[gaps.length-1];
+    if((b>a && c>b) || (a===b && b===c)){ gs="bad"; gh="連續兩次上升或卡住：材料可能太難，下一段縮到 45 秒或換一位講得清楚的講者。"; }
+    else if(c<a){ gs="ok"; gh="在往下走。等它降到個位數，就是該升級材料的訊號。"; }
+    else { gs="warn"; gh="還在晃動，再看兩段。"; } }
+  else if(gaps.length===2){ gs = gaps[1]<=gaps[0]?"ok":"warn"; gh = gaps[1]<=gaps[0]?"方向是對的。":"上升一次很正常，再看一段。"; }
+  addInd(el,gs,"中 → 西重建的落差數",gv,gh,gaps);
+  // 2 chunks (k=5)
+  var ch=[]; for(var j=5;j<=upto;j+=7){ var r2=state.days[addDays(state.start,j)]; if(r2&&typeof r2.chunks==="number") ch.push(r2.chunks); }
+  var cs="none", chh="每週第 6 天填。這是唯一直接量「轉移」的指標：背過的東西有沒有在沒準備時跑出來。", cv=ch.length?("最近 "+ch[ch.length-1]):"還沒有";
+  if(ch.length>=2){ var x=ch[ch.length-2], y=ch[ch.length-1];
+    if(x===0&&y===0){ cs="bad"; chh="連兩次是零：自由口說時刻意挑一個背過的塊硬用，或請語伴把話題帶到你背過的主題。"; }
+    else if(y>=x){ cs="ok"; chh="背過的塊開始自己跑出來了。"; } else { cs="warn"; chh="比上次少，可能是話題不同，再看一次。"; } }
+  else if(ch.length===1){ cs = ch[0]>0?"ok":"warn"; }
+  addInd(el,cs,"自由口說用上背過的塊",cv,chh,null);
+  // 3 practice days this week
+  var ws="none", wv="—", wh="一週練 5 天以上是綠燈，少於 3 天是紅燈。";
+  if(ti>=0 && ti<PLAN_DAYS+7){ var wk=Math.floor(Math.min(ti,PLAN_DAYS-1)/7), cnt=0, seen=0;
+    for(var q=0;q<7;q++){ var di=wk*7+q; if(di>Math.min(ti,PLAN_DAYS-1)) break; seen++; if(practiced(addDays(state.start,di))) cnt++; }
+    wv=cnt+" / "+seen+" 天"; var proj=cnt+(7-seen);
+    ws = cnt>=5?"ok":(proj<3?"bad":(seen===7&&cnt<5?(cnt<3?"bad":"warn"):"warn"));
+    if(ws==="ok") wh="這週已經達標。"; }
+  addInd(el,ws,"這週練習天數",wv,wh,null);
+  // 4 conversations
+  var cvs="none", cvv="—", cvh="第 5 週開始，每週至少一次真實對話。";
+  if(ti>=28){ var n=0; for(var z=Math.max(0,Math.min(ti,PLAN_DAYS-1)-13); z<=Math.min(ti,PLAN_DAYS-1); z++){ var rr=state.days[addDays(state.start,z)]; if(rr&&rr.d.indexOf("l2")>=0) n++; }
+    cvv="近 14 天 "+n+" 次"; cvs = n>=2?"ok":(n===1?"warn":"bad");
+    cvh = n===0 ? "兩週沒有對話了：先約一位付費家教，社交成本最低。" : (n===1?"差一次就達標。":"節奏穩定。"); }
+  addInd(el,cvs,"真實對話",cvv,cvh,null);
+  // 5 streak
+  var ss="none", sv="—", sh="漏一天正常，漏兩天就按最低版本。";
+  if(ti>=1 && ti<PLAN_DAYS){ var y1=practiced(addDays(t,-1)), y2=ti>=2?practiced(addDays(t,-2)):true;
+    if(!y1 && !y2 && !practiced(t)){ ss="bad"; sv="連漏兩天"; sh="今天做最低可行的一天就好。"; }
+    else if(!y1 && !practiced(t)){ ss="warn"; sv="昨天漏了"; sh="今天練一下，就不會變成連漏兩天。"; }
+    else { ss="ok"; var s=0; for(var u=0; u<=ti; u++){ if(practiced(addDays(t,-u))) s++; else if(u>0) break; } sv="連續 "+s+" 天"; sh="線沒斷。"; } }
+  addInd(el,ss,"不連續漏兩天",sv,sh,null);
+}
+function addInd(parent,st,name,val,hint,series){
+  var d=document.createElement("div"); d.className="ind";
+  var dot=document.createElement("span"); dot.className="dot"+(st!=="none"?" "+st:"");
+  dot.setAttribute("aria-label",{ok:"綠燈",warn:"黃燈",bad:"紅燈",none:"尚無資料"}[st]);
+  var nm=document.createElement("div"); nm.className="nm"; nm.textContent=name;
+  var vl=document.createElement("div"); vl.className="vl"; vl.textContent=val;
+  var hi=document.createElement("div"); hi.className="hint"; hi.textContent=hint;
+  d.appendChild(dot); d.appendChild(nm); d.appendChild(vl); d.appendChild(hi);
+  if(series && series.length>=2){ d.appendChild(spark(series)); }
+  parent.appendChild(d);
+}
+function spark(v){
+  var W=300,H=46,P=6, mx=Math.max.apply(null,v), mn=Math.min.apply(null,v); if(mx===mn){mx+=1;mn=Math.max(0,mn-1);}
+  var ns="http://www.w3.org/2000/svg", s=document.createElementNS(ns,"svg"); s.setAttribute("viewBox","0 0 "+W+" "+H); s.setAttribute("class","spark"); s.setAttribute("aria-hidden","true");
+  s.style.gridColumn="2 / 4";
+  var pts=v.map(function(y,i){ return [P+i*(W-2*P)/(v.length-1), P+(1-(y-mn)/(mx-mn))*(H-2*P)]; });
+  var area=document.createElementNS(ns,"path");
+  area.setAttribute("d","M"+pts[0][0]+","+(H-P)+" L"+pts.map(function(p){return p[0]+","+p[1];}).join(" L")+" L"+pts[pts.length-1][0]+","+(H-P)+" Z");
+  area.setAttribute("fill","var(--part)"); area.setAttribute("opacity","0.45"); s.appendChild(area);
+  var line=document.createElementNS(ns,"polyline"); line.setAttribute("points",pts.map(function(p){return p[0]+","+p[1];}).join(" "));
+  line.setAttribute("fill","none"); line.setAttribute("stroke","var(--done)"); line.setAttribute("stroke-width","2"); s.appendChild(line);
+  var last=pts[pts.length-1], c=document.createElementNS(ns,"circle"); c.setAttribute("cx",last[0]); c.setAttribute("cy",last[1]); c.setAttribute("r","3.5"); c.setAttribute("fill","var(--done)"); s.appendChild(c);
+  return s;
+}
+
+/* ---------- events ---------- */
+$("prevBtn").addEventListener("click", function(){ sel=addDays(sel,-1); render(); });
+$("nextBtn").addEventListener("click", function(){ sel=addDays(sel,1); render(); });
+$("todayBtn").addEventListener("click", function(){ sel=clampSel(todayKey()); render(); });
+$("minBtn").addEventListener("click", function(){ var r=dayRec(sel,true); r.min=!r.min; scheduleSave(); render(); });
+var noteTimer=null;
+$("note").addEventListener("input", function(){ var v=$("note").value.slice(0,600); clearTimeout(noteTimer);
+  noteTimer=setTimeout(function(){ var r=dayRec(sel,true); if(r.note!==v){ r.note=v; scheduleSave(); } },800); });
+$("startSave").addEventListener("click", function(){
+  var v=$("startDate").value; if(!/^\d{4}-\d{2}-\d{2}$/.test(v) || v===state.start) return;
+  state.start=v; sel=clampSel(todayKey()); scheduleSave(); render();
+});
+
+/* ---------- boot ---------- */
+var cached=lsRead(); if(cached) state=normalize(cached);
+render(); setStatus(false);
+$("status").textContent="連線中…";
+(async function(){
+  var c = window.claude;
+  if(!c || typeof c.use!=="function"){ db=null; setStatus(false); return; }
+  try{
+    var user = await c.use("user"); var uid = user ? await user.id() : null;
+    db = uid ? await c.use("db") : null;
+    if(!db || !uid){ db=null; setStatus(false); return; }
+    docRef = db.doc("data/users/"+uid+"/plan90");
+    var snap = await docRef.get();
+    if(snap.exists){ state = normalize(snap.data()); lastWritten = JSON.stringify(state); lsWrite(); sel=null; render(); setStatus(true); }
+    else if(cached && Object.keys(state.days).length){ scheduleSave(); }
+    else { setStatus(true); }
+    unsub = docRef.onSnapshot(function(s){
+      if(!s.exists || s.metadata.hasPendingWrites) return;
+      var incoming = normalize(s.data()); var txt = JSON.stringify(incoming);
+      if(txt!==JSON.stringify(state) && !writeTimer_pending()){ state=incoming; lastWritten=txt; lsWrite(); render(); }
+    }, function(){ /* subscription ended; the page keeps working and saves on the next change */ });
+  }catch(e){ db=null; docRef=null; setStatus(false); }
+})();
+function writeTimer_pending(){ return JSON.stringify(state)!==lastWritten; }
+})();
+</script>
+
+</body>
+</html>
